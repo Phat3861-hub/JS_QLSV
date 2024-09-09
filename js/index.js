@@ -1,9 +1,9 @@
 // tổng hợp các chức năng sẽ thực hiện trong bài quản lý sinh viên
 // CRUD - (Create - Read - Update - Delete)
 // Thêm sinh viên (done)
-// Xóa sinh viên
-// Cập nhật sinh viên
-// Clear dữ liệu đang có trong form
+// Xóa sinh viên (done)
+// Cập nhật sinh viên (done)
+// Clear dữ liệu đang có trong form (done)
 // Render dữ liệu lên trên giao diện (done)
 // Lưu trữ dữ liệu ở local storage (done)
 // Validation dữ liệu
@@ -17,12 +17,14 @@ document.getElementById("formQLSV").onsubmit = function (event) {
   event.preventDefault();
   // Thực hiện xử lý và truy cập lấy tất cả dữ liệu từ các input có trong giao diện
   let sinhVien = getValueForm();
-  arrSinhVien.push(sinhVien);
-  setLocalStorage("arrSinhVien", arrSinhVien);
-  renderDataSinhVien();
-  // trỏ tới thẻ form đang chạy unsubmit
-  // xóa các giá trị người dùng nhập sau khi submit (reset lại các ô input)
-  event.target.reset();
+  if (sinhVien) {
+    arrSinhVien.push(sinhVien);
+    setLocalStorage("arrSinhVien", arrSinhVien);
+    renderDataSinhVien();
+    // trỏ tới thẻ form đang chạy unsubmit
+    // xóa các giá trị người dùng nhập sau khi submit (reset lại các ô input)
+    event.target.reset();
+  }
 };
 
 // Chức năng hiển thị sinh viên lên table
@@ -140,15 +142,17 @@ function getInfoSinhVien(maSV) {
 
 document.getElementById("updateSV").onclick = function () {
   let sinhVien = getValueForm();
-  let index = arrSinhVien.findIndex(
-    (item, i) => item.txtMaSV == sinhVien.txtMaSV
-  );
-  if (index != -1) {
-    arrSinhVien[index] = sinhVien;
-    renderDataSinhVien();
-    setLocalStorage("arrSinhVien", arrSinhVien);
-    document.getElementById("txtMaSV").readOnly = false;
-    document.getElementById("formQLSV").reset();
+  if (sinhVien) {
+    let index = arrSinhVien.findIndex(
+      (item, i) => item.txtMaSV == sinhVien.txtMaSV
+    );
+    if (index != -1) {
+      arrSinhVien[index] = sinhVien;
+      renderDataSinhVien();
+      setLocalStorage("arrSinhVien", arrSinhVien);
+      document.getElementById("txtMaSV").readOnly = false;
+      document.getElementById("formQLSV").reset();
+    }
   }
 };
 
@@ -156,10 +160,52 @@ document.getElementById("updateSV").onclick = function () {
 function getValueForm() {
   let arrField = document.querySelectorAll("#formQLSV input,#formQLSV select");
   let sinhVien = new SinhVien();
+
+  // tạo một biến cờ hiệu để check trường hợp khi nào trả về đối tượng sinh viên
+  let flag = true;
+
   for (let field of arrField) {
     // destructuring
     let { value, id } = field;
     sinhVien[id] = value;
+
+    // Truy cập tới thẻ cha gần nhất của input
+    let theThongBao = field.parentElement.querySelector("span");
+
+    if (!checkEmptyValue(theThongBao, value)) {
+      flag = false;
+    } else {
+      // dữ liệu không bị rỗng
+      // if (id == "txtPass" && !checkMinMaxValue(theThongBao, value, 6, 10)) {
+      //   flag = false;
+      // }
+      // truy xuất tới các thuộc tính data-validation
+      let dataValue = field.getAttribute("data-validation"); // undifinded | email | minmax
+      let dataMin = field.getAttribute("data-min") * 1;
+      let dataMax = field.getAttribute("data-max") * 1;
+      if (dataValue == "email" && !checkEmailValue(theThongBao, value)) {
+        flag = false;
+      } else if (
+        dataValue == "minMax" &&
+        !checkMinMaxValue(theThongBao, value, dataMin, dataMax)
+      ) {
+        flag = false;
+      }
+    }
   }
-  return sinhVien;
+  return flag ? sinhVien : null;
 }
+
+// ------------- tìm kiếm sinh viên --------------
+document.getElementById("txtSearch").oninput = function (event) {
+  let keyWord = event.target.value.trim().toLowerCase();
+  let newKeyWord = removeVietnameseTones(keyWord);
+  console.log(newKeyWord);
+  let arrSearch = arrSinhVien.filter((item, index) => {
+    // item.txtTenSV ="Phát" newKeyWord = phat
+    // item.txtTenSV.includes(newKeyWord) ==> true
+    let newTenSV = removeVietnameseTones(item.txtTenSV.trim().toLowerCase());
+    return newTenSV.includes(newKeyWord);
+  });
+  renderDataSinhVien(arrSearch);
+};

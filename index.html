@@ -30,12 +30,13 @@
                     <div class="row">
                         <div class="col-6 form-group">
                             <label for="">Email : </label>
-                            <input type="text" class="form-control" id="txtEmail">
+                            <input type="text" class="form-control" id="txtEmail" data-validation="email">
                             <span id="spanEmailSV" class="text-danger"></span>
                         </div>
                         <div class="col-6 form-group">
                             <label for="">Mật khẩu: </label>
-                            <input type="password" class="form-control" id="txtPass">
+                            <input type="password" class="form-control" id="txtPass" data-validation="minMax"
+                                data-min="6" data-max="10">
                             <span id="spanMatKhau" class="text-danger"></span>
                         </div>
                     </div>
@@ -48,9 +49,9 @@
                         <div class="col-6 form-group">
                             <label for="">Khóa học: </label>
                             <select name="" id="khSV" class="form-control">
-                                <option>Chọn khóa học</option>
-                                <option>KH001</option>
-                                <option>KH002</option>
+                                <option value="">Chọn khóa học</option>
+                                <option value="KH001">KH001</option>
+                                <option value="KH002">KH002</option>
                             </select>
                             <span id="spanKhoaHoc" class="text-danger"></span>
                         </div>
@@ -120,6 +121,8 @@
             integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
             crossorigin="anonymous"></script>
 
+        <script src="./utils/utils.js"></script>
+        <script src="./validation/validation.js"></script>
         <script src="./models/SinhVien.js"></script>
         <script src="./js/index.js"></script>
 
